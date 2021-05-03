@@ -1,3 +1,4 @@
+const {argv} = require('yargs');
 const {getConfig} = require('./config');
 
 /**
@@ -19,22 +20,39 @@ function makeTemplateQuestion(configPath) {
  */
 function makeFieldQuestions(templateConfig) {
     return templateConfig.fields.map(field => {
-        return {
-            name: field.templateVariable,
-            message: field.question,
-            type: !!field.choices ? 'list' : 'input',
-            choices: field.choices || undefined,
-            validate(value) {
-                if (value.length === 0) {
-                    return 'This field is mandatory.';
-                }
-                if (field.isValid) {
-                    return field.isValid(value) || field.errorMessage || 'Invalid value.';
-                }
-                return true;
-            },
-        };
+        if (!!field.cli && argv[field.cli]) {
+            // user has added the answer in advance
+            const question = makeQuestion(field);
+            question.answer = argv[field.cli];
+            return question;
+        }
+
+        return makeQuestion(field);
     });
+}
+
+/**
+ * Make a standard question object
+ *
+ * @param {object} field
+ * @returns {object}
+ */
+function makeQuestion(field) {
+    return {
+        name: field.templateVariable,
+        message: field.question,
+        type: !!field.choices ? 'list' : 'input',
+        choices: field.choices || undefined,
+        validate(value) {
+            if (value.length === 0) {
+                return 'This field is mandatory.';
+            }
+            if (field.isValid) {
+                return field.isValid(value) || field.errorMessage || 'Invalid value.';
+            }
+            return true;
+        },
+    };
 }
 
 module.exports = {

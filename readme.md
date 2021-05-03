@@ -174,6 +174,48 @@ The default behavior is to add a new folder at the destination; `destinationPath
 
 If you would like your config to be somewhere else you can use the `-c=path/to/your/config.js` flag when you call cookiecutter.
 
+## Command line options
+
+### --template
+
+Use this to to specify the template to use from the command line.
+
+```sh
+# Define the template without interaction
+npm run cookiecutter --template "Normal React Component"
+```
+
+### Answers
+
+Answers to questions can be specified on the command line. The question requires a field to define the cli parameter.
+
+```diff
+// in cookiecutter.config.js
+module.exports = [
+    {
+       name: "Normal React Component",
+        templatePath: "templates/COMPONENT_NAME/index.js",
+        outputPath: "src/components/",
+        fields: [
+            {
+                templateVariable: 'COMPONENT_NAME',
+                question: "What is the component's name?",
++               cli: "name"
+            }
+        ]
+    }
+];
+
+```
+
+This can then be used as a parameter.
+
+```sh
+# Define the COMPONENT_NAME without interaction
+npm run cookiecutter --name AwesomeComponent
+```
+
+
 ## Contributing
 
 After cloning the repo `yarn install`.
